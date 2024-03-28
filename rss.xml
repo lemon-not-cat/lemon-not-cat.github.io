@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <rss version="2.0">
     <channel>
-        <title>mo xi mo xi~</title>
-        <subtitle>林深时见鹿，溪午不闻钟</subtitle>
+        <title>灵韵流光</title>
+        <subtitle>犬吠水声中，桃花带露浓。 树深时见鹿，溪午不闻钟。 野竹分青霭，飞泉挂碧峰。 无人知所去，愁倚两三松。</subtitle>
         <icon>https://lemon-not-cat.github.io/images/favicon.ico</icon>
         <link>https://lemon-not-cat.github.io</link>
         <author>
           <name>lemon不是猫</name>
         </author>
-        <description>一个向往自由的java程序员~</description>
+        <description>对Java的探索 &amp; 编程笔记</description>
         <language>zh-CN</language>
         <pubDate>Tue, 05 Mar 2024 22:26:58 +0800</pubDate>
         <lastBuildDate>Tue, 05 Mar 2024 22:26:58 +0800</lastBuildDate>
