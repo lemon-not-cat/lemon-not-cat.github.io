@@ -10,8 +10,208 @@
         </author>
         <description>对Java的探索 &amp; 编程笔记</description>
         <language>zh-CN</language>
-        <pubDate>Tue, 05 Mar 2024 22:26:58 +0800</pubDate>
-        <lastBuildDate>Tue, 05 Mar 2024 22:26:58 +0800</lastBuildDate>
+        <pubDate>Sun, 31 Mar 2024 15:26:58 +0800</pubDate>
+        <lastBuildDate>Sun, 31 Mar 2024 15:26:58 +0800</lastBuildDate>
+        <item>
+            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/03/31/back-end/java/redis/redis/</guid>
+            <title>redis</title>
+            <link>https://lemon-not-cat.github.io/2024/03/31/back-end/java/redis/redis/</link>
+            <category term="后端知识" scheme="https://lemon-not-cat.github.io/categories/back-end/" />
+            <category term="Java" scheme="https://lemon-not-cat.github.io/categories/back-end/java/" />
+            <category term="Redis-缓存中间件" scheme="https://lemon-not-cat.github.io/categories/back-end/java/redis/" />
+            <pubDate>Sun, 31 Mar 2024 15:26:58 +0800</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;持久化&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#持久化&#34;&gt;#&lt;/a&gt; 持久化&lt;/h1&gt;
+&lt;h2 id=&#34;1-aof&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#1-aof&#34;&gt;#&lt;/a&gt; 1、AOF&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;首先根据 redis 里面的内存数据重新构建一个 AOF 文件&lt;/li&gt;
+&lt;li&gt;读取 redis 里面的数据，写入到新的 AOF 文件中&lt;/li&gt;
+&lt;li&gt;用新的 AOF 文件覆盖掉现有的 AOF 文件&lt;/li&gt;
+&lt;li&gt;redis 把重写这个过程放到子进程中去完成，不影响主进程工作&lt;/li&gt;
+&lt;li&gt;为了避免子进程在重写过程中主进程的数据发生变化，redis 把主进程的数据变更追加到 AOF 重写缓冲区中，等到 AOF 文件重写完成后，再将 AOF 重写缓冲区里面的数据追加到新的 AOF 文件里面&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2-rdb&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#2-rdb&#34;&gt;#&lt;/a&gt; 2、RDB&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;首先会生成一个 fork 子进程，fork 子进程共享 redis 主进程中的内存数据，fork 子进程用来进行 RDB 持久化操作。&lt;/li&gt;
+&lt;li&gt;fork 子进程将 redis 内存数据写入到 dump.rmb 临时文件中，写入完成后替换掉最终的 dump.rmb 文件，完成一次持久化。&lt;/li&gt;
+&lt;li&gt;当 redis 宕机重启后，redis 会读取 dump.rmb 文件，将数据加载到 redis 内存中。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;持久化还有两种方式，手动触发和自动触发&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;手动触发只需要执行 save 或 bgsave 命令即可&lt;br /&gt;
+ save：save 命令执行时，会阻塞 redis 进程，直到持久化完成才可以进行其他操作&lt;br /&gt;
+ bgsave：bgsave 命令执行时是异步持久化的，会生成一个 fork 子进程，子进程进行持久化，不影响主进程&lt;/li&gt;
+&lt;li&gt;自动触发需要在 redis.conf 中配置，通过 save 配置项，配置 RDB 持久化的规则，当满足规则时候，redis 就会自动执行一次持久化操作&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;缓存击穿-缓存穿透-缓存雪崩&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#缓存击穿-缓存穿透-缓存雪崩&#34;&gt;#&lt;/a&gt; 缓存击穿、缓存穿透、缓存雪崩&lt;/h1&gt;
+&lt;h2 id=&#34;缓存击穿&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#缓存击穿&#34;&gt;#&lt;/a&gt; 缓存击穿&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;概念&lt;/strong&gt;：指热点 key 在某个时间点过期的时候，而恰好在这个时间点对这个 Key 有大量的并发请求过来，从而大量的请求打到 db。&lt;strong&gt;解决方案就有两种：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用互斥锁方案。缓存失效时，不是立即去加载 db 数据，而是先使用某些带成功返回的原子操作命令，如 (Redis 的 setnx) 去操作，成功的时候，再去加载 db 数据库数据和设置缓存。否则就去重试获取缓存。&lt;/li&gt;
+&lt;li&gt;“永不过期”，是指没有设置过期时间，但是热点数据快要过期时，异步线程去更新和设置过期时间。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;缓存穿透&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#缓存穿透&#34;&gt;#&lt;/a&gt; 缓存穿透&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;概念&lt;/strong&gt; ：指查询一个一定不存在的数据，由于缓存是不命中时需要从数据库查询，查不到数据则不写入缓存，这将导致这个不存在的数据每次请求都要到数据库去查询，进而给数据库带来压力。&lt;strong&gt;缓存穿透一般都是这几种情况产生的：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;业务不合理的设计&lt;/strong&gt;，比如大多数用户都没开守护，但是你的每个请求都去缓存，查询某个 userid 查询有没有守护。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;业务 / 运维 / 开发失误的操作&lt;/strong&gt;，比如缓存和数据库的数据都被误删除了。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;黑客非法请求攻击&lt;/strong&gt;，比如黑客故意捏造大量非法请求，以读取不存在的业务数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;如何避免缓存穿透呢？&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;如果是非法请求，我们在 API 入口，对参数进行校验，过滤非法值。&lt;/li&gt;
+&lt;li&gt;如果查询数据库为空，我们可以给缓存设置个空值，或者默认值。但是如有有写请求进来的话，需要更新缓存哈，以保证缓存一致性，同时，最后给缓存设置适当的过期时间。（业务上比较常用，简单有效）&lt;/li&gt;
+&lt;li&gt;使用布隆过滤器快速判断数据是否存在。即一个查询请求过来时，先通过布隆过滤器判断值是否存在，存在才继续往下查。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;缓存雪崩&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#缓存雪崩&#34;&gt;#&lt;/a&gt; 缓存雪崩&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;概念&lt;/strong&gt;：指缓存中数据大批量到过期时间，而查询数据量巨大，请求都直接访问数据库，引起数据库压力过大甚至 down 机。&lt;strong&gt;解决方案&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;缓存雪奔一般是由于大量数据同时过期造成的，对于这个原因，可通过均匀设置过期时间解决，即让过期时间相对离散一点。如采用一个较大固定值 + 一个较小的随机值，5 小时 + 0 到 1800 秒酱紫。&lt;/li&gt;
+&lt;li&gt;Redis 故障宕机也可能引起缓存雪奔。这就需要构造 Redis 高可用集群啦。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;过期策略&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#过期策略&#34;&gt;#&lt;/a&gt; 过期策略&lt;/h1&gt;
+&lt;p&gt;我们在 set key 的时候，可以给它设置一个过期时间，比如 expire key 60。指定这 key60s 后过期，60s 后，redis 是如何处理的嘛？我们先来介绍几种过期策略：&lt;/p&gt;
+&lt;p&gt;定时过期&lt;br /&gt;
+每个设置过期时间的 key 都需要创建一个定时器，到过期时间就会立即对 key 进行清除。该策略可以立即清除过期的数据，对内存很友好；但是会占用大量的 CPU 资源去处理过期的数据，从而影响缓存的响应时间和吞吐量。&lt;/p&gt;
+&lt;p&gt;惰性过期&lt;br /&gt;
+只有当访问一个 key 时，才会判断该 key 是否已过期，过期则清除。该策略可以最大化地节省 CPU 资源，却对内存非常不友好。极端情况可能出现大量的过期 key 没有再次被访问，从而不会被清除，占用大量内存。&lt;/p&gt;
+&lt;p&gt;定期过期&lt;br /&gt;
+每隔一定的时间，会扫描一定数量的数据库的 expires 字典中一定数量的 key，并清除其中已过期的 key。该策略是前两者的一个折中方案。通过调整定时扫描的时间间隔和每次扫描的限定耗时，可以在不同情况下使得 CPU 和内存资源达到最优的平衡效果。expires 字典会保存所有设置了过期时间的 key 的过期时间数据，其中，key 是指向键空间中的某个键的指针，value 是该键的毫秒精度的 UNIX 时间戳表示的过期时间。键空间是指该 Redis 集群中保存的所有键。&lt;/p&gt;
+&lt;p&gt;Redis 中同时使用了惰性过期和定期过期两种过期策略：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;假设 Redis 当前存放 30 万个 key，并且都设置了过期时间，如果你每隔 100ms 就去检查这全部的 key，CPU 负载会特别高，最后可能会挂掉。&lt;/li&gt;
+&lt;li&gt;因此，redis 采取的是定期过期，每隔 100ms 就随机抽取一定数量的 key 来检查和删除的。&lt;/li&gt;
+&lt;li&gt;但是呢，最后可能会有很多已经过期的 key 没被删除。这时候，redis 采用惰性删除。在你获取某个 key 的时候，redis 会检查一下，这个 key 如果设置了过期时间并且已经过期了，此时就会删除。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;内存淘汰策略&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#内存淘汰策略&#34;&gt;#&lt;/a&gt; 内存淘汰策略&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;volatile-lru：当内存不足以容纳新写入数据时，从设置了过期时间的 key 中使用 LRU（最近最少使用）算法进行淘汰；&lt;/li&gt;
+&lt;li&gt;allkeys-lru：当内存不足以容纳新写入数据时，从所有 key 中使用 LRU（最近最少使用）算法进行淘汰。&lt;/li&gt;
+&lt;li&gt;volatile-lfu：4.0 版本新增，当内存不足以容纳新写入数据时，在过期的 key 中，使用 LFU 算法进行删除 key。&lt;/li&gt;
+&lt;li&gt;allkeys-lfu：4.0 版本新增，当内存不足以容纳新写入数据时，从所有 key 中使用 LFU 算法进行淘汰；&lt;/li&gt;
+&lt;li&gt;volatile-random：当内存不足以容纳新写入数据时，从设置了过期时间的 key 中，随机淘汰数据；。&lt;/li&gt;
+&lt;li&gt;allkeys-random：当内存不足以容纳新写入数据时，从所有 key 中随机淘汰数据。&lt;/li&gt;
+&lt;li&gt;volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的 key 中，根据过期时间进行淘汰，越早过期的优先被淘汰；&lt;/li&gt;
+&lt;li&gt;noeviction：默认策略，当内存不足以容纳新写入数据时，新写入操作会报错。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;主从模式&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#主从模式&#34;&gt;#&lt;/a&gt; 主从模式&lt;/h1&gt;
+&lt;p&gt;主从模式中，Redis 部署了多台机器，有主节点，负责读写操作，有从节点，只负责读操作。从节点的数据来自主节点，实现原理就是&lt;strong&gt;主从复制机制&lt;/strong&gt;&lt;br /&gt;
+主从复制包括全量复制，增量复制两种。一般当 slave 第一次启动连接 master，或者认为是第一次连接，就采用&lt;strong&gt;全量复制&lt;/strong&gt; slave 与 master 全量同步之后，master 上的数据，如果再次发生更新，就会触发&lt;strong&gt;增量复制&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;当 master 节点发生数据增减时，就会触发 replicationFeedSalves () 函数，接下来在 Master 节点上调用的每一个命令会使用 replicationFeedSlaves () 来同步到 Slave 节点。执行此函数之前呢，master 节点会判断用户执行的命令是否有数据更新，如果有数据更新的话，并且 slave 节点不为空，就会执行此函数。这个函数作用就是：&lt;em&gt;&lt;strong&gt;把用户执行的命令发送到所有的 slave 节点，让 slave 节点执行。&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h1 id=&#34;哨兵模式&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#哨兵模式&#34;&gt;#&lt;/a&gt; 哨兵模式&lt;/h1&gt;
+&lt;p&gt;主从模式中，一旦主节点由于故障不能提供服务，需要人工将从节点晋升为主节点，同时还要通知应用方更新主节点地址。显然，多数业务场景都不能接受这种故障处理方式。Redis 从 2.8 开始正式提供了 Redis Sentinel（哨兵）架构来解决这个问题。&lt;/p&gt;
+&lt;p&gt;哨兵模式，由一个或多个 Sentinel 实例组成的 Sentinel 系统，它可以监视所有的 Redis 主节点和从节点，并在被监视的主节点进入下线状态时，自动将下线主服务器属下的某个从节点升级为新的主节点。但是呢，一个哨兵进程对 Redis 节点进行监控，就可能会出现问题（单点问题），因此，可以使用多个哨兵来进行监控 Redis 节点，并且各个哨兵之间还会进行监控。&lt;/p&gt;
+&lt;p&gt;简单来说，哨兵模式就三个作用：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;发送命令，等待 Redis 服务器（包括主服务器和从服务器）返回监控其运行状态；&lt;/li&gt;
+&lt;li&gt;哨兵监测到主节点宕机，会自动将从节点切换成主节点，然后通过发布订阅模式通知其他的从节点，修改配置文件，让它们切换主机；&lt;/li&gt;
+&lt;li&gt;哨兵之间还会相互监控，从而达到高可用。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;故障切换的过程是怎样的呢&lt;br /&gt;
+假设主服务器宕机，哨兵 1 先检测到这个结果，系统并不会马上进行 failover 过程，仅仅是哨兵 1 主观的认为主服务器不可用，这个现象成为主观下线。当后面的哨兵也检测到主服务器不可用，并且数量达到一定值时，那么哨兵之间就会进行一次投票，投票的结果由一个哨兵发起，进行 failover 操作。切换成功后，就会通过发布订阅模式，让各个哨兵把自己监控的从服务器实现切换主机，这个过程称为客观下线。这样对于客户端而言，一切都是透明的。&lt;/p&gt;
+&lt;p&gt;哨兵的工作模式如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;每个 Sentinel 以每秒钟一次的频率向它所知的 Master，Slave 以及其他 Sentinel 实例发送一个 PING 命令。&lt;/li&gt;
+&lt;li&gt;如果一个实例（instance）距离最后一次有效回复 PING 命令的时间超过 down-after-milliseconds 选项所指定的值， 则这个实例会被 Sentinel 标记为主观下线。&lt;/li&gt;
+&lt;li&gt;如果一个 Master 被标记为主观下线，则正在监视这个 Master 的所有 Sentinel 要以每秒一次的频率确认 Master 的确进入了主观下线状态。&lt;/li&gt;
+&lt;li&gt;当有足够数量的 Sentinel（大于等于配置文件指定的值）在指定的时间范围内确认 Master 的确进入了主观下线状态， 则 Master 会被标记为客观下线。&lt;/li&gt;
+&lt;li&gt;在一般情况下， 每个 Sentinel 会以每 10 秒一次的频率向它已知的所有 Master，Slave 发送 INFO 命令。&lt;/li&gt;
+&lt;li&gt;当 Master 被 Sentinel 标记为客观下线时，Sentinel 向下线的 Master 的所有 Slave 发送 INFO 命令的频率会从 10 秒一次改为每秒一次&lt;/li&gt;
+&lt;li&gt;若没有足够数量的 Sentinel 同意 Master 已经下线， Master 的客观下线状态就会被移除；若 Master 重新向 Sentinel 的 PING 命令返回有效回复， Master 的主观下线状态就会被移除。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;cluster集群模式&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#cluster集群模式&#34;&gt;#&lt;/a&gt; Cluster 集群模式&lt;/h1&gt;
+&lt;p&gt;哨兵模式基于主从模式，实现读写分离，它还可以自动切换，系统可用性更高。但是它每个节点存储的数据是一样的，浪费内存，并且不好在线扩容。因此，Cluster 集群应运而生，它在 Redis3.0 加入的，实现了 Redis 的分布式存储。对数据进行分片，也就是说每台 Redis 节点上存储不同的内容，来解决在线扩容的问题。并且，它也提供复制和故障转移的功能。&lt;/p&gt;
+&lt;p&gt;一个 Redis 集群由多个节点组成，各个节点之间是怎么通信的呢？通过 Gossip 协议！&lt;br /&gt;
+Redis Cluster 集群通过 Gossip 协议进行通信，节点之前不断交换信息，交换的信息内容包括节点出现故障、新节点加入、主从节点变更信息、slot 信息等等。常用的 Gossip 消息分为 4 种，分别是：ping、pong、meet、fail。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;meet 消息：通知新节点加入。消息发送者通知接收者加入到当前集群，meet 消息通信正常完成后，接收节点会加入到集群中并进行周期性的 ping、pong 消息交换。&lt;/li&gt;
+&lt;li&gt;ping 消息：集群内交换最频繁的消息，集群内每个节点每秒向多个其他节点发送 ping 消息，用于检测节点是否在线和交换彼此状态信息。&lt;/li&gt;
+&lt;li&gt;pong 消息：当接收到 ping、meet 消息时，作为响应消息回复给发送方确认消息正常通信。pong 消息内部封装了自身状态数据。节点也可以向集群内广播自身的 pong 消息来通知整个集群对自身状态进行更新。&lt;/li&gt;
+&lt;li&gt;fail 消息：当节点判定集群内另一个节点下线时，会向集群内广播一个 fail 消息，其他节点接收到 fail 消息之后把对应节点更新为下线状态。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;特别的，每个节点是通过&lt;strong&gt;集群总线 (cluster bus)&lt;/strong&gt; 与其他的节点进行通信的。通讯时，使用特殊的端口号，即对外服务端口号加 10000。例如如果某个 node 的端口号是 6379，那么它与其它 nodes 通信的端口号是 16379。nodes 之间的通信采用特殊的二进制协议。&lt;/p&gt;
+&lt;p&gt;Hash Slot 插槽算法&lt;br /&gt;
+既然是分布式存储，Cluster 集群使用的分布式算法是一致性 Hash 嘛？并不是，而是 Hash Slot 插槽算法。&lt;br /&gt;
+插槽算法把整个数据库被分为 16384 个 slot（槽），每个进入 Redis 的键值对，根据 key 进行散列，分配到这 16384 插槽中的一个。使用的哈希映射也比较简单，用 CRC16 算法计算出一个 16 位的值，再对 16384 取模。数据库中的每个键都属于这 16384 个槽的其中一个，集群中的每个节点都可以处理这 16384 个槽。&lt;br /&gt;
+集群中的每个节点负责一部分的 hash 槽，比如当前集群有 A、B、C 个节点，每个节点上的哈希槽数 =16384/3，那么就有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;节点 A 负责 0~5460 号哈希槽&lt;/li&gt;
+&lt;li&gt;节点 B 负责 5461~10922 号哈希槽&lt;/li&gt;
+&lt;li&gt;节点 C 负责 10923~16383 号哈希槽&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Redis Cluster 集群中，需要确保 16384 个槽对应的 node 都正常工作，如果某个 node 出现故障，它负责的 slot 也会失效，整个集群将不能工作。&lt;br /&gt;
+因此为了保证高可用，Cluster 集群引入了主从复制，一个主节点对应一个或者多个从节点。当其它主节点 ping 一个主节点 A 时，如果半数以上的主节点与 A 通信超时，那么认为主节点 A 宕机了。如果主节点宕机时，就会启用从节点。&lt;br /&gt;
+在 Redis 的每一个节点上，都有两个玩意，一个是插槽（slot），它的取值范围是 0~16383。另外一个是 cluster，可以理解为一个集群管理的插件。当我们存取的 key 到达时，Redis 会根据 CRC16 算法得出一个 16 bit 的值，然后把结果对 16384 取模。酱紫每个 key 都会对应一个编号在 0~16383 之间的哈希槽，通过这个值，去找到对应的插槽所对应的节点，然后直接自动跳转到这个对应的节点上进行存取操作。&lt;br /&gt;
+虽然数据是分开存储在不同节点上的，但是对客户端来说，整个集群 Cluster，被看做一个整体。客户端端连接任意一个 node，看起来跟操作单实例的 Redis 一样。当客户端操作的 key 没有被分配到正确的 node 节点时，Redis 会返回转向指令，最后指向正确的 node，这就有点像浏览器页面的 302 重定向跳转。&lt;/p&gt;
+&lt;p&gt;故障转移&lt;br /&gt;
+ Redis 集群实现了高可用，当集群内节点出现故障时，通过故障转移，以保证集群正常对外提供服务。&lt;br /&gt;
+redis 集群通过 ping/pong 消息，实现故障发现。这个环境包括主观下线和客观下线。&lt;br /&gt;
+主观下线： 某个节点认为另一个节点不可用，即下线状态，这个状态并不是最终的故障判定，只能代表一个节点的意见，可能存在误判情况。&lt;/p&gt;
+&lt;p&gt;主观下线&lt;br /&gt;
+客观下线： 指标记一个节点真正的下线，集群内多个节点都认为该节点不可用，从而达成共识的结果。如果是持有槽的主节点故障，需要为该节点进行故障转移。&lt;br /&gt;
+假如节点 A 标记节点 B 为主观下线，一段时间后，节点 A 通过消息把节点 B 的状态发到其它节点，当节点 C 接受到消息并解析出消息体时，如果发现节点 B 的 pfail 状态时，会触发客观下线流程；&lt;br /&gt;
+当下线为主节点时，此时 Redis Cluster 集群为统计持有槽的主节点投票，看投票数是否达到一半，当下线报告统计数大于一半时，被标记为客观下线状态。&lt;/p&gt;
+&lt;p&gt;客观下线&lt;strong&gt;故障恢复&lt;/strong&gt;：故障发现后，如果下线节点的是主节点，则需要在它的从节点中选一个替换它，以保证集群的高可用。流程如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;资格检查：检查从节点是否具备替换故障主节点的条件。&lt;/li&gt;
+&lt;li&gt;准备选举时间：资格检查通过后，更新触发故障选举时间。&lt;/li&gt;
+&lt;li&gt;发起选举：到了故障选举时间，进行选举。&lt;/li&gt;
+&lt;li&gt;选举投票：只有持有槽的&lt;strong&gt;主节点&lt;/strong&gt;才有票，从节点收集到足够的选票（大于一半），触发&lt;strong&gt;替换主节点操作&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;分布式锁&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#分布式锁&#34;&gt;#&lt;/a&gt; 分布式锁&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;分布式锁&lt;/strong&gt;，是控制分布式系统不同进程共同访问共享资源的一种锁的实现。秒杀下单、抢红包等等业务场景，都需要用到分布式锁，我们项目中经常使用 Redis 作为分布式锁。&lt;/p&gt;
+&lt;h2 id=&#34;命令setnx-expire分开写&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#命令setnx-expire分开写&#34;&gt;#&lt;/a&gt; 命令 setnx + expire 分开写&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&#34;highlight java&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;keyword&#34;&gt;if&lt;/span&gt;（jedis.setnx(key,lock_value) == &lt;span class=&#34;number&#34;&gt;1&lt;/span&gt;）&amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;comment&#34;&gt;//加锁 expire（key，100）; &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;comment&#34;&gt;//设置过期时间 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;keyword&#34;&gt;try&lt;/span&gt; &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;span class=&#34;comment&#34;&gt;//业务请求 do something &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &amp;#125;&lt;span class=&#34;keyword&#34;&gt;catch&lt;/span&gt;()&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &amp;#125; &lt;span class=&#34;keyword&#34;&gt;finally&lt;/span&gt; &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        jedis.del(key); &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;span class=&#34;comment&#34;&gt;//释放锁 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;br /&gt;
+ 如果执行完 setnx 加锁，正要执行 expire 设置过期时间时，进程 crash 掉或者要重启维护了，那这个锁就 “长生不老” 了，别的线程永远获取不到锁啦，所以分布式锁不能这么实现。&lt;/p&gt;
+&lt;h2 id=&#34;setnx-value值是过期时间&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#setnx-value值是过期时间&#34;&gt;#&lt;/a&gt; setnx + value 值是过期时间&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&#34;highlight java&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;type&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;variable&#34;&gt;expires&lt;/span&gt; &lt;span class=&#34;operator&#34;&gt;=&lt;/span&gt; System.currentTimeMillis() + expireTime; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;comment&#34;&gt;//系统时间+设置的过期时间 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;type&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;variable&#34;&gt;expiresStr&lt;/span&gt; &lt;span class=&#34;operator&#34;&gt;=&lt;/span&gt; String.valueOf(expires); &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;comment&#34;&gt;// 如果当前锁不存在，返回加锁成功 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;keyword&#34;&gt;if&lt;/span&gt; (jedis.setnx(key, expiresStr) == &lt;span class=&#34;number&#34;&gt;1&lt;/span&gt;) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;literal&#34;&gt;true&lt;/span&gt;; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;comment&#34;&gt;// 如果锁已经存在，获取锁的过期时间 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;type&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;variable&#34;&gt;currentValueStr&lt;/span&gt; &lt;span class=&#34;operator&#34;&gt;=&lt;/span&gt; jedis.get(key); &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;comment&#34;&gt;// 如果获取到的过期时间，小于系统当前时间，表示已经过期 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;keyword&#34;&gt;if&lt;/span&gt; (currentValueStr != &lt;span class=&#34;literal&#34;&gt;null&lt;/span&gt; &amp;amp;&amp;amp; Long.parseLong(currentValueStr) &amp;lt; System.currentTimeMillis()) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;comment&#34;&gt;// 锁已过期，获取上一个锁的过期时间，并设置现在锁的过期时间&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;type&#34;&gt;String&lt;/span&gt; &lt;span class=&#34;variable&#34;&gt;oldValueStr&lt;/span&gt; &lt;span class=&#34;operator&#34;&gt;=&lt;/span&gt; jedis.getSet(key_resource_id, expiresStr); &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;keyword&#34;&gt;if&lt;/span&gt; (oldValueStr != &lt;span class=&#34;literal&#34;&gt;null&lt;/span&gt; &amp;amp;&amp;amp; oldValueStr.equals(currentValueStr)) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;span class=&#34;comment&#34;&gt;// 考虑多线程并发的情况，只有一个线程的设置值和当前值相同，它才可以加锁 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;span class=&#34;keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;literal&#34;&gt;true&lt;/span&gt;; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;comment&#34;&gt;//其他情况，均返回加锁失败 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;keyword&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;literal&#34;&gt;false&lt;/span&gt;; &lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;br /&gt;
+ 这种方案也有这些缺点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;过期时间是客户端自己生成的，分布式环境下，每个客户端的时间必须同步。&lt;/li&gt;
+&lt;li&gt;没有保存持有者的唯一标识，可能被别的客户端释放 / 解锁。&lt;/li&gt;
+&lt;li&gt;锁过期的时候，并发多个客户端同时请求过来，都执行了 jedis.getSet ()，最终只能有一个客户端加锁成功，但是该客户端锁的过期时间，可能被别的客户端覆盖。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;set的扩展命令set-ex-px-nx注意可能存在的问题&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#set的扩展命令set-ex-px-nx注意可能存在的问题&#34;&gt;#&lt;/a&gt; set 的扩展命令（set ex px nx）（注意可能存在的问题）&lt;/h2&gt;
+&lt;p&gt;&lt;figure class=&#34;highlight java&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;keyword&#34;&gt;if&lt;/span&gt;（jedis.set(key, lock_value, &lt;span class=&#34;string&#34;&gt;&amp;quot;NX&amp;quot;&lt;/span&gt;, &lt;span class=&#34;string&#34;&gt;&amp;quot;EX&amp;quot;&lt;/span&gt;, 100s) == &lt;span class=&#34;number&#34;&gt;1&lt;/span&gt;）&amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;comment&#34;&gt;//加锁 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &lt;span class=&#34;keyword&#34;&gt;try&lt;/span&gt; &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;span class=&#34;comment&#34;&gt;//业务处理 do something  &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &amp;#125;&lt;span class=&#34;keyword&#34;&gt;catch&lt;/span&gt;()&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &amp;#125; &lt;span class=&#34;keyword&#34;&gt;finally&lt;/span&gt; &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        jedis.del(key); &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;        &lt;span class=&#34;comment&#34;&gt;//释放锁 &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;    &amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;br /&gt;
+ 这个方案可能存在这样的问题：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;锁过期释放了，业务还没执行完。&lt;/li&gt;
+&lt;li&gt;锁被别的线程误删。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;redission&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#redission&#34;&gt;#&lt;/a&gt; Redission&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;分布式锁&lt;/strong&gt;可能存在&lt;strong&gt;锁过期释放，业务没执行完的问题&lt;/strong&gt;。有些小伙伴认为，稍微把锁过期时间设置长一些就可以啦。其实我们设想一下，是否可以给获得锁的线程，开启一个定时守护线程，每隔一段时间检查锁是否还存在，存在则对锁的过期时间延长，防止锁过期提前释放。&lt;/p&gt;
+&lt;p&gt;只要线程一加锁成功，就会启动一个 watch dog 看门狗，它是一个后台线程，会每隔 10 秒检查一下，如果线程 1 还持有锁，那么就会不断的延长锁 key 的生存时间。因此，Redisson 就是使用 Redisson 解决了&lt;strong&gt;锁过期释放，业务没执行完&lt;/strong&gt;问题。&lt;/p&gt;
+&lt;h1 id=&#34;红锁redlock&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#红锁redlock&#34;&gt;#&lt;/a&gt; 红锁 Redlock&lt;/h1&gt;
+&lt;p&gt;Redlock 核心思想是这样的：&lt;br /&gt;
+搞多个 Redis master 部署，以保证它们不会同时宕掉。并且这些 master 节点是完全相互独立的，相互之间不存在数据同步。同时，需要确保在这多个 master 实例上，是与在 Redis 单实例，使用相同方法来获取和释放锁。&lt;br /&gt;
+简化下步骤就是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;按顺序向 5 个 master 节点请求加锁&lt;/li&gt;
+&lt;li&gt;根据设置的超时时间来判断，是不是要跳过该 master 节点。&lt;/li&gt;
+&lt;li&gt;如果大于等于三个节点加锁成功，并且使用的时间小于锁的有效期，即可认定加锁成功啦。&lt;/li&gt;
+&lt;li&gt;如果获取锁失败，解锁！&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;事务机制&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#事务机制&#34;&gt;#&lt;/a&gt; 事务机制&lt;/h1&gt;
+&lt;p&gt;Redis 通过 MULTI、EXEC、WATCH 等一组命令集合，来实现事务机制。事务支持一次执行多个命令，一个事务中所有命令都会被序列化。在事务执行过程，会按照顺序串行化执行队列中的命令，其他客户端提交的命令请求不会插入到事务执行命令序列中。&lt;/p&gt;
+&lt;p&gt;简言之，Redis 事务就是顺序性、一次性、排他性的执行一个队列中的一系列命令。&lt;/p&gt;
+&lt;p&gt;Redis 执行事务的流程如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;开始事务（MULTI）&lt;/li&gt;
+&lt;li&gt;命令入队&lt;/li&gt;
+&lt;li&gt;执行事务（EXEC）&lt;/li&gt;
+&lt;li&gt;撤销事务（DISCARD ）&lt;/li&gt;
+&lt;/ul&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/03/31/back-end/java/nacos/nacos/</guid>
+            <title>nacos</title>
+            <link>https://lemon-not-cat.github.io/2024/03/31/back-end/java/nacos/nacos/</link>
+            <category term="后端知识" scheme="https://lemon-not-cat.github.io/categories/back-end/" />
+            <category term="Java" scheme="https://lemon-not-cat.github.io/categories/back-end/java/" />
+            <category term="Nacos-动态服务发现、配置管理和服务管理平台" scheme="https://lemon-not-cat.github.io/categories/back-end/java/nacos/" />
+            <pubDate>Sun, 31 Mar 2024 15:26:58 +0800</pubDate>
+            <description><![CDATA[  ]]></description>
+        </item>
         <item>
             <guid isPermalink="true">https://lemon-not-cat.github.io/2024/03/05/first/</guid>
             <title>first</title>
