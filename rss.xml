@@ -10,8 +10,133 @@
         </author>
         <description>对Java的探索 &amp; 编程笔记</description>
         <language>zh-CN</language>
-        <pubDate>Sun, 14 Apr 2024 19:16:00 +0800</pubDate>
-        <lastBuildDate>Sun, 14 Apr 2024 19:16:00 +0800</lastBuildDate>
+        <pubDate>Wed, 17 Apr 2024 20:43:30 +0800</pubDate>
+        <lastBuildDate>Wed, 17 Apr 2024 20:43:30 +0800</lastBuildDate>
+        <item>
+            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/04/17/gongxing/gongji/</guid>
+            <title>公基</title>
+            <link>https://lemon-not-cat.github.io/2024/04/17/gongxing/gongji/</link>
+            <category term="公行" scheme="https://lemon-not-cat.github.io/categories/gongxing/" />
+            <category term="公基" scheme="https://lemon-not-cat.github.io/categories/gongxing/gongji/" />
+            <category term="公行" scheme="https://lemon-not-cat.github.io/tags/%E5%85%AC%E8%A1%8C/" />
+            <pubDate>Wed, 17 Apr 2024 20:43:30 +0800</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;马克思主义基本原理&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#马克思主义基本原理&#34;&gt;#&lt;/a&gt; 马克思主义基本原理&lt;/h1&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/04/17/gongxing/xingce/</guid>
+            <title>行测</title>
+            <link>https://lemon-not-cat.github.io/2024/04/17/gongxing/xingce/</link>
+            <category term="公行" scheme="https://lemon-not-cat.github.io/categories/gongxing/" />
+            <category term="行测" scheme="https://lemon-not-cat.github.io/categories/gongxing/xingce/" />
+            <category term="公行" scheme="https://lemon-not-cat.github.io/tags/%E5%85%AC%E8%A1%8C/" />
+            <pubDate>Wed, 17 Apr 2024 20:43:30 +0800</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;资料分析&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#资料分析&#34;&gt;#&lt;/a&gt; 资料分析&lt;/h1&gt;
+&lt;ol&gt;
+&lt;li&gt;年均增长率&lt;br /&gt;
+&lt;img data-src=&#34;image/image.png&#34; alt=&#34;alt text&#34; /&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1 id=&#34;类比推理&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#类比推理&#34;&gt;#&lt;/a&gt; 类比推理&lt;/h1&gt;
+&lt;h2 id=&#34;概念间的逻辑关系&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#概念间的逻辑关系&#34;&gt;#&lt;/a&gt; 概念间的逻辑关系&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;全同关系&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;概念相同，说法不同 如：番茄 - 西红柿、土豆 - 马铃薯&lt;/li&gt;
+&lt;li&gt;书面语、口语（雅俗） 如：那有两只老鼠 - 那有两只耗子&lt;/li&gt;
+&lt;li&gt;古今不同 如：南京 - 金陵、医生 - 郎中&lt;/li&gt;
+&lt;li&gt;中外不同 如：email - 电子邮件、引擎 - 发动机&lt;/li&gt;
+&lt;li&gt;一语双关 如：炒鱿鱼 - 解雇、和稀泥 - 调解&lt;/li&gt;
+&lt;li&gt;自他 如：令郎（你的儿子）- 犬子（自己的儿子）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;全异关系&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;绝对反义 -- 矛盾关系 如：男女、生死&lt;/li&gt;
+&lt;li&gt;相对反义 -- 并列（反对）关系：同一大类里的两个小类 如：钢笔 - 铅笔（并列）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;交叉关系&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;有的 A 是 B，有的 A 不是 B，有的 B 是 A，有的 B 不是 A&lt;br /&gt;
+ 例：青年 - 教师 | 学生 - 党员&lt;br /&gt;
+注：当命名方式不同 80% 可能会出现交叉&lt;br /&gt;
+如：木桶、圆桶、保温桶&lt;/li&gt;
+&lt;li&gt;出现命名方式：80% 是交叉，20% 是并列&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;4&#34;&gt;
+&lt;li&gt;包含关系&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;A. 种属（造句：…… 是…… 的一种）&lt;br /&gt;
+例：虎 - 豹 - 狮 - 猫科动物&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;B. 组成（造句：…… 是…… 的一部分）&lt;br /&gt;
+例：电脑 - 主板 - cpu - 显卡 - 硬盘 - 显示器&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;语义关系&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#语义关系&#34;&gt;#&lt;/a&gt; 语义关系&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;近义&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;反义：同一话题&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;二级辨析：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;（1）感情色彩：褒贬义（积极、消极）&lt;/li&gt;
+&lt;li&gt;（2）程度轻重&lt;/li&gt;
+&lt;li&gt;（3）拆构（冷嘲热讽、寒耕暑耘、东张西望）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;
+&lt;p&gt;比喻义 如：眉目、耳目&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;象征义&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;语法关系&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#语法关系&#34;&gt;#&lt;/a&gt; 语法关系&lt;/h2&gt;
+&lt;p&gt;主语 +（状语）谓语 +（定语）宾语&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;主谓关系（主语 + 谓语，名词 + 动词）&lt;/li&gt;
+&lt;li&gt;动宾关系（谓语 + 宾语，动词 + 名词）&lt;/li&gt;
+&lt;li&gt;主谓宾 n + v + n&lt;/li&gt;
+&lt;li&gt;主宾&lt;/li&gt;
+&lt;li&gt;偏正关系 （形容词 + 名词， 副词 + 动词，名词 + 名词）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;图形推理&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#图形推理&#34;&gt;#&lt;/a&gt; 图形推理&lt;/h1&gt;
+&lt;h2 id=&#34;平面图形&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#平面图形&#34;&gt;#&lt;/a&gt; 平面图形&lt;/h2&gt;
+&lt;p&gt;一般有四类：&lt;strong&gt;位置类、样式叠加类、属性类、数量类&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;平移&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#平移&#34;&gt;#&lt;/a&gt; 平移&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;一般是白色背景黑色块，或者白色背景黑色⚪&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;方向&lt;/li&gt;
+&lt;li&gt;距离&lt;/li&gt;
+&lt;li&gt;方式：循环移、往返 “回” 字形循环&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;旋转&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#旋转&#34;&gt;#&lt;/a&gt; 旋转&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;各元素组成完全相同，局部位置变化明显&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;方向：顺逆时针&lt;/li&gt;
+&lt;li&gt;角度：30、25、60、90、180 度&lt;/li&gt;
+&lt;li&gt;方式：整体转、部分转&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;翻转&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#翻转&#34;&gt;#&lt;/a&gt; 翻转&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;各个元素组成完全相同，局部位置变化明显&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;上下翻转（横轴对称）&lt;/li&gt;
+&lt;li&gt;左右翻转（竖轴对称）&lt;/li&gt;
+&lt;li&gt;整体反转、部分翻转&lt;/li&gt;
+&lt;/ol&gt;
+ ]]></description>
+        </item>
         <item>
             <guid isPermalink="true">https://lemon-not-cat.github.io/2024/04/14/English/CET-6/CET-6/</guid>
             <title>CET-6</title>
@@ -1769,11 +1894,11 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/04/01/software-testing/test-notes/test-notes/</guid>
+            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/04/01/rjcs/rjcsbj/rjcsbj/</guid>
             <title>软件测试笔记</title>
-            <link>https://lemon-not-cat.github.io/2024/04/01/software-testing/test-notes/test-notes/</link>
-            <category term="软件测试" scheme="https://lemon-not-cat.github.io/categories/software-testing/" />
-            <category term="软件测试笔记" scheme="https://lemon-not-cat.github.io/categories/software-testing/test-notes/" />
+            <link>https://lemon-not-cat.github.io/2024/04/01/rjcs/rjcsbj/rjcsbj/</link>
+            <category term="软件测试" scheme="https://lemon-not-cat.github.io/categories/rjcs/" />
+            <category term="软件测试笔记" scheme="https://lemon-not-cat.github.io/categories/rjcs/rjcsbj/" />
             <pubDate>Mon, 01 Apr 2024 00:00:00 +0800</pubDate>
             <description><![CDATA[ &lt;h1 id=&#34;一-测试的原则&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#一-测试的原则&#34;&gt;#&lt;/a&gt; 一、测试的原则&lt;/h1&gt;
 &lt;p&gt;对于软件测试应该具有认识或者心态。&lt;/p&gt;
@@ -1868,12 +1993,10 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/03/31/back-end/java/redis/redis/</guid>
+            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/03/31/redis/redis/</guid>
             <title>redis</title>
-            <link>https://lemon-not-cat.github.io/2024/03/31/back-end/java/redis/redis/</link>
-            <category term="后端知识" scheme="https://lemon-not-cat.github.io/categories/back-end/" />
-            <category term="Java" scheme="https://lemon-not-cat.github.io/categories/back-end/java/" />
-            <category term="Redis-缓存中间件" scheme="https://lemon-not-cat.github.io/categories/back-end/java/redis/" />
+            <link>https://lemon-not-cat.github.io/2024/03/31/redis/redis/</link>
+            <category term="Redis-缓存中间件" scheme="https://lemon-not-cat.github.io/categories/redis/" />
             <pubDate>Sun, 31 Mar 2024 15:26:58 +0800</pubDate>
             <description><![CDATA[ &lt;h1 id=&#34;持久化&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#持久化&#34;&gt;#&lt;/a&gt; 持久化&lt;/h1&gt;
 &lt;h2 id=&#34;1-aof&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#1-aof&#34;&gt;#&lt;/a&gt; 1、AOF&lt;/h2&gt;
@@ -2056,16 +2179,6 @@ redis 集群通过 ping/pong 消息，实现故障发现。这个环境包括主
 &lt;li&gt;撤销事务（DISCARD ）&lt;/li&gt;
 &lt;/ul&gt;
  ]]></description>
-        </item>
-        <item>
-            <guid isPermalink="true">https://lemon-not-cat.github.io/2024/03/31/back-end/java/nacos/nacos/</guid>
-            <title>nacos</title>
-            <link>https://lemon-not-cat.github.io/2024/03/31/back-end/java/nacos/nacos/</link>
-            <category term="后端知识" scheme="https://lemon-not-cat.github.io/categories/back-end/" />
-            <category term="Java" scheme="https://lemon-not-cat.github.io/categories/back-end/java/" />
-            <category term="Nacos-动态服务发现、配置管理和服务管理平台" scheme="https://lemon-not-cat.github.io/categories/back-end/java/nacos/" />
-            <pubDate>Sun, 31 Mar 2024 15:26:58 +0800</pubDate>
-            <description><![CDATA[  ]]></description>
         </item>
     </channel>
 </rss>
